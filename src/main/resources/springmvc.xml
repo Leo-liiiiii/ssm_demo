@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--开启controller包扫描-->
+    <context:component-scan base-package="com.ujiuye.ssm.controller"/>
+
+    <!--开启mvc注解驱动,相当于配置了映射器和适配器,同时支持了json格式,同时可以在里面添加自定义类型装换器-->
+  <mvc:annotation-driven conversion-service="conversionService2"/>
+    <!--spring管理自定义类型转换器-->
+    <bean class="org.springframework.format.support.FormattingConversionServiceFactoryBean" id="conversionService2">
+        <property name="converters">
+            <set>
+                <bean class="com.ujiuye.ssm.converter.DateConverter"/>
+            </set>
+        </property>
+    </bean>
+
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--spring管理全局异常处理器-->
+    <bean class="com.ujiuye.ssm.exception.GlobalExceptionHandler"/>
+
+    <!--mvc配置拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/js/*"/>
+            <bean class="com.ujiuye.ssm.interceptor.CustomerInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--mvc对静态资源的处理-->
+    <mvc:default-servlet-handler/>
+    <!--方法二: 手动映射  更安全可以访问到WEB-INF下的资源-->
+    <!--<mvc:resources mapping="/js/*" location="/js/"/>-->
+
+    <!--文件上床-->
+    <bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+           <property name="maxUploadSize" value="20000000"/>
+    </bean>
+</beans>
